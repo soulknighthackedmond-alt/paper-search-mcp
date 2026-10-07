@@ -1,0 +1,10 @@
+# Development-only files: never shipped inside the bundle.
+scripts/
+tests/
+.git/
+.gitignore
+.mcpbignore
+*.log
+npm-debug.log*
+node_modules/.cache/
+node_modules/.bin/

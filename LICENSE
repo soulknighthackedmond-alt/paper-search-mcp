@@ -1,6 +1,10 @@
 MIT License
 
+Copyright (c) 2026 Alvin — Paper Search Plus (Node implementation, MCP bundle)
+
+Portions of the design and feature set are derived from paper-search-mcp:
 Copyright (c) 2025 OPENAGS
+https://github.com/openags/paper-search-mcp
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

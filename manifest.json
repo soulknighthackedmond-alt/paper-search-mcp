@@ -1,0 +1,218 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/mcpb/main/schemas/mcpb-manifest-v0.3.schema.json",
+  "manifest_version": "0.3",
+  "name": "paper-search-plus",
+  "display_name": "Paper Search Plus",
+  "version": "1.0.0",
+  "description": "Search, read and cite academic papers across 19 open sources.",
+  "long_description": "**Paper Search Plus** turns your assistant into a research assistant that reads the literature instead of guessing at it.\n\n### What it does\n- **One search, nineteen sources.** arXiv, Crossref, OpenAlex, Semantic Scholar, PubMed, Europe PMC, PubMed Central, bioRxiv, medRxiv, ChemRxiv, IACR ePrint, OpenReview, DOAJ, Zenodo, HAL, OpenAIRE, CORE, IEEE Xplore and Scopus — queried in parallel, de-duplicated by DOI and title, and ranked by relevance, citation impact, recency and source trust.\n- **Resolves anything.** A DOI, arXiv id, PubMed/PMC id, publisher URL or just a paper title becomes one complete record, enriched with open-access status and a legal free PDF link.\n- **Reads the paper, not the abstract.** `download_paper` fetches the free PDF and verifies it really is a PDF; `read_paper` extracts page text, detects the abstract/methods/results/discussion/conclusion sections, and parses the reference list. Long papers can be read page by page to keep context small.\n- **Citations in your style.** BibTeX, RIS, APA 7, MLA 9, Chicago, Harvard, Vancouver, GB/T 7714 and CSL-JSON, with unique BibTeX keys.\n- **Follows the citation graph.** See what cites a paper, what it cites, and machine-recommended related work.\n- **Author profiles.** h-index, i10, affiliations and most-cited papers via OpenAlex.\n- **A local library.** Save papers to a reading list on your own machine and export it into Zotero, Mendeley or EndNote.\n\n### Built for reliability\n- Results are cached locally, so a repeated search is instant and costs no quota.\n- Every request has timeouts, retries with backoff and per-host rate limits; a source that is down, rate limited or missing a key is reported next to the results instead of breaking the search.\n- Nothing needs a paid subscription. API keys are optional and only make things faster or wider.\n- **Sci-Hub and other pirate mirrors are deliberately not included.** `download_paper` only returns legal open-access copies.\n\n### Setup\nThe contact email is the only setting worth filling in: it puts Crossref, OpenAlex, NCBI and Unpaywall calls into their polite, faster pools. Everything else is optional.\n\nMIT licensed. Inspired by and feature-compatible with the Python project `openags/paper-search-mcp` (MIT, Copyright (c) 2025 OPENAGS); this bundle is an independent Node implementation with a different tool surface.",
+  "author": {
+    "name": "Alvin"
+  },
+  "homepage": "https://arxiv.org",
+  "documentation": "https://github.com/openags/paper-search-mcp",
+  "license": "MIT",
+  "keywords": [
+    "academic",
+    "research",
+    "papers",
+    "literature-review",
+    "arxiv",
+    "pubmed",
+    "crossref",
+    "openalex",
+    "doi",
+    "citations",
+    "bibtex",
+    "pdf"
+  ],
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {
+        "PAPER_SEARCH_EMAIL": "${user_config.contact_email}",
+        "PAPER_SEARCH_DOWNLOAD_DIR": "${user_config.download_directory}",
+        "PAPER_SEARCH_CACHE": "${user_config.cache_enabled}",
+        "PAPER_SEARCH_MAX_DOWNLOAD_MB": "${user_config.max_download_mb}",
+        "SEMANTIC_SCHOLAR_API_KEY": "${user_config.semantic_scholar_api_key}",
+        "CORE_API_KEY": "${user_config.core_api_key}",
+        "NCBI_API_KEY": "${user_config.ncbi_api_key}",
+        "OPENALEX_API_KEY": "${user_config.openalex_api_key}",
+        "IEEE_API_KEY": "${user_config.ieee_api_key}",
+        "SCOPUS_API_KEY": "${user_config.scopus_api_key}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "search_papers",
+      "description": "Search many sources at once and get one de-duplicated, ranked list."
+    },
+    {
+      "name": "get_paper",
+      "description": "Resolve a DOI, arXiv/PubMed id, URL or title into a complete record."
+    },
+    {
+      "name": "list_sources",
+      "description": "List the available sources, what they cover and whether they need a key."
+    },
+    {
+      "name": "download_paper",
+      "description": "Find and save a legal open-access PDF, verified as a real PDF."
+    },
+    {
+      "name": "read_paper",
+      "description": "Extract full text, sections and references from a paper."
+    },
+    {
+      "name": "cite_paper",
+      "description": "Format references as BibTeX, RIS, APA, MLA, Chicago, Harvard, Vancouver, GB/T 7714 or CSL-JSON."
+    },
+    {
+      "name": "find_related",
+      "description": "Walk the citation graph: citing papers, references or similar work."
+    },
+    {
+      "name": "author_profile",
+      "description": "Look up a researcher: h-index, affiliations and most-cited papers."
+    },
+    {
+      "name": "library",
+      "description": "Save papers to a local reading list and export it."
+    },
+    {
+      "name": "server_status",
+      "description": "Configuration, cache usage and a live reachability test of every source."
+    }
+  ],
+  "tools_generated": false,
+  "prompts": [
+    {
+      "name": "literature_review",
+      "description": "Plan and run a multi-source literature review on a topic, ending in a cited summary.",
+      "arguments": [
+        "topic",
+        "depth",
+        "year_from"
+      ],
+      "text": "Do a literature review on a topic using search_papers across all sources, group the results by approach, read the most important papers with download_paper and read_paper, follow the citation graph with find_related, then summarise what is settled, what is contested, what is missing, and cite everything with cite_paper."
+    },
+    {
+      "name": "summarize_paper",
+      "description": "Read a paper properly and summarise it, separating claims from evidence.",
+      "arguments": [
+        "identifier",
+        "focus"
+      ],
+      "text": "Resolve the paper with get_paper, download the free PDF with download_paper, read it with read_paper, then report the question, method, data, headline result with numbers, stated limitations and what the paper does not show. Flag anything the abstract claims that the text does not support."
+    },
+    {
+      "name": "compare_papers",
+      "description": "Compare two or more papers on the same question and say which is stronger.",
+      "arguments": [
+        "identifiers",
+        "question"
+      ],
+      "text": "Resolve each paper with get_paper, read their methods and results with read_paper, then produce a table of method, data, key result, limitations, venue, year and citations, and finish with which one to trust most and why."
+    },
+    {
+      "name": "research_gap",
+      "description": "Find an under-explored angle in a field, grounded in retrieved literature.",
+      "arguments": [
+        "topic",
+        "constraint"
+      ],
+      "text": "Search foundational and recent work, walk the citation graph with find_related, then propose three concrete testable gaps. Every claim must come from a retrieved paper — never invent citations."
+    }
+  ],
+  "prompts_generated": false,
+  "compatibility": {
+    "runtimes": {
+      "node": ">=20.10.0"
+    },
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ]
+  },
+  "user_config": {
+    "contact_email": {
+      "type": "string",
+      "title": "Contact email",
+      "description": "Optional but recommended. Sent to Crossref, OpenAlex, NCBI and Unpaywall so requests land in their fast 'polite pool' and to unlock free PDF lookup. It is never published or shared with anyone else.",
+      "required": false,
+      "default": ""
+    },
+    "download_directory": {
+      "type": "directory",
+      "title": "Folder for downloaded PDFs",
+      "description": "Where download_paper saves PDFs. Leave empty to use <home>/.paper-search-plus/papers.",
+      "required": false
+    },
+    "cache_enabled": {
+      "type": "boolean",
+      "title": "Cache search results",
+      "description": "Keep a local cache of search results and paper metadata for 24 hours. Makes repeated searches instant and avoids rate limits.",
+      "required": false,
+      "default": true
+    },
+    "max_download_mb": {
+      "type": "number",
+      "title": "Maximum PDF size (MB)",
+      "description": "Refuse to download anything larger than this.",
+      "required": false,
+      "default": 80,
+      "min": 1,
+      "max": 1000
+    },
+    "semantic_scholar_api_key": {
+      "type": "string",
+      "title": "Semantic Scholar API key",
+      "description": "Optional. The free shared pool is heavily rate limited; a free key (semanticscholar.org/product/api) makes this source fast and reliable.",
+      "required": false,
+      "sensitive": true
+    },
+    "core_api_key": {
+      "type": "string",
+      "title": "CORE API key",
+      "description": "Optional. Unlocks CORE's 300M+ open-access documents (core.ac.uk/services/api).",
+      "required": false,
+      "sensitive": true
+    },
+    "ncbi_api_key": {
+      "type": "string",
+      "title": "NCBI (PubMed) API key",
+      "description": "Optional. Raises the PubMed rate limit from 3 to 10 requests per second (ncbi.nlm.nih.gov/account).",
+      "required": false,
+      "sensitive": true
+    },
+    "openalex_api_key": {
+      "type": "string",
+      "title": "OpenAlex API key",
+      "description": "Optional. Raises the OpenAlex daily quota (openalex.org/settings/api).",
+      "required": false,
+      "sensitive": true
+    },
+    "ieee_api_key": {
+      "type": "string",
+      "title": "IEEE Xplore API key",
+      "description": "Optional. Adds IEEE journals and conference papers (developer.ieee.org).",
+      "required": false,
+      "sensitive": true
+    },
+    "scopus_api_key": {
+      "type": "string",
+      "title": "Scopus (Elsevier) API key",
+      "description": "Optional. Adds Scopus records and citation counts (dev.elsevier.com).",
+      "required": false,
+      "sensitive": true
+    }
+  }
+}
